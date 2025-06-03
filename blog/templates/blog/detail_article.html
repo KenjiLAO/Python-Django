@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Détail de l'article</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        .article { max-width: 600px; margin-bottom: 40px; }
+        h1 { color: #007cba; }
+        .meta { color: #888; margin-bottom: 20px; }
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: #007cba;
+            color: white;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 999;
+        }
+
+        .navbar h1 {
+            margin: 0;
+            font-size: 1.5em;
+        }
+
+        .navbar button {
+            background: #ffffff;
+            color: #007cba;
+            border: none;
+            padding: 8px 12px;
+            cursor: pointer;
+            font-weight: bold;
+            border-radius: 5px;
+        }
+
+        body.dark-mode {
+            background-color: #121212;
+            color: #f0f0f0;
+        }
+
+        body.dark-mode .navbar {
+            background: #1f1f1f;
+            color: #f0f0f0;
+        }
+
+        body.dark-mode .navbar button {
+            background: #333;
+            color: #f0f0f0;
+        }
+
+        .content {
+            margin-top: 70px;
+        }
+
+        .comment {
+            border-top: 1px solid #ccc;
+            padding-top: 10px;
+            margin-top: 20px;
+        }
+
+        .comment-form textarea {
+            width: 100%;
+            padding: 8px;
+            font-size: 14px;
+            resize: vertical;
+        }
+
+        .comment-form button {
+            margin-top: 10px;
+            background: #007cba;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .commentaire-item {
+            margin-bottom: 15px;
+        }
+
+    </style>
+</head>
+<body>
+<div class="navbar">
+    <h1>Mon Blog Django</h1>
+    <button onclick="toggleDarkMode()">🌙 Mode Nuit</button>
+</div>
+
+<div class="content">
+    <div class="article">
+        <h1>{{ article.titre }}</h1>
+        <p class="meta">Par {{ article.auteur }}</p>
+        {% if article.image %}
+        <img src="{{ article.image.url }}" alt="Image de {{ article.titre }}" style="max-width:300px;">
+        {% endif %}
+        <div>
+            <strong>Contenu :</strong>
+            <p>{{ article.contenu }}</p>
+        </div>
+        <div>
+            <strong>Catégorie :</strong>
+            <p>{{ article.categorie }}</p>
+        </div>
+        <a href="{% url 'home' %}">← Retour à l'accueil</a>
+    </div>
+
+    <!-- Commentaires existants -->
+    <div class="comment">
+        <h2>Commentaires</h2>
+        {% for commentaire in commentaires %}
+        <div class="commentaire-item">
+            <p><strong>{{ commentaire.auteur }}</strong> - {{ commentaire.date_creation|date:"d/m/Y H:i" }}</p>
+            <p>{{ commentaire.contenu }}</p>
+        </div>
+        {% empty %}
+        <p>Aucun commentaire pour le moment.</p>
+        {% endfor %}
+    </div>
+
+    <!-- Formulaire de commentaire -->
+    {% if user.is_authenticated %}
+    <div class="comment-form">
+        <h3>Ajouter un commentaire</h3>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Publier</button>
+        </form>
+    </div>
+    {% else %}
+    <p><a href="{% url 'login' %}">Connectez-vous</a> pour laisser un commentaire.</p>
+    {% endif %}
+</div>
+
+<script>
+    if (localStorage.getItem('darkMode') === 'true') {
+        document.body.classList.add('dark-mode');
+    }
+
+    function toggleDarkMode() {
+        document.body.classList.toggle('dark-mode');
+        localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
+    }
+</script>
+</body>
+</html>

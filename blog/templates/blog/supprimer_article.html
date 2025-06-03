@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Supprimer un article</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        .form-group { margin: 15px 0; }
+        .btn { background: #dc3545; color: white; padding: 10px 20px; border: none; cursor: pointer; }
+        .btn-secondary { background: #6c757d; color: white; padding: 10px 20px; border: none; text-decoration: none; }
+    </style>
+</head>
+<body>
+<h1>Supprimer l'Article</h1>
+
+<p>Es-tu sûr(e) de vouloir supprimer <strong>{{ article.titre }}</strong> ?</p>
+
+<form method="post">
+    {% csrf_token %}
+    <div class="form-group">
+        <button type="submit" class="btn">Oui, supprimer</button>
+        <a href="{% url 'home' %}" class="btn-secondary">Annuler</a>
+    </div>
+</form>
+</body>
+</html>
