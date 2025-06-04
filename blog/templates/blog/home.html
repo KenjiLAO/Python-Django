@@ -8,19 +8,6 @@
         .article { border: 1px solid #ddd; padding: 20px; margin: 10px 0; }
         .btn { background: #007cba; color: white; padding: 10px 20px; text-decoration: none; }
         .messages { background: #d4edda; color: #155724; padding: 10px; margin: 10px 0; }
-        .navbar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            background: #007cba;
-            color: white;
-            padding: 10px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            z-index: 999;
-        }
 
         .navbar h1 {
             margin: 0;
@@ -59,43 +46,9 @@
     </style>
 </head>
 <body>
+{% include 'blog/header.html' %}
 {% load i18n %}
-<div class="navbar">
-    <h1>{% trans "Mon Blog Django" %}</h1>
-    <div class="navbar-right">
-        {% get_current_language as LANGUAGE_CODE %}
 
-        <form action="{% url 'set_language' %}" method="post">
-            {% csrf_token %}
-            <select name="language" onchange="this.form.submit()">
-                <option value="fr" {% if LANGUAGE_CODE == 'fr' %}selected{% endif %}>Français</option>
-                <option value="en" {% if LANGUAGE_CODE == 'en' %}selected{% endif %}>English</option>
-            </select>
-        </form>
-
-        <button onclick="toggleDarkMode()">🌙 {% trans "Mode Nuit" %}</button>
-
-        {% if user.is_authenticated %}
-        <span>👤 {{ user.username }}</span>
-        <form method="post" action="{% url 'logout' %}" style="display:inline;">
-            {% csrf_token %}
-            <button type="submit" style="background:none; border:none; cursor:pointer; color:blue; text-decoration:underline;">
-                {% trans "Se déconnecter" %}
-            </button>
-        </form>
-        {% else %}
-        <a href="{% url 'login' %}">{% trans "Connexion" %}</a>
-        <a href="{% url 'signup' %}">{% trans "Inscription" %}</a>
-        {% endif %}
-    </div>
-</div>
-
-
-<div class="content">
-    {% block content %}
-    <!-- Ton contenu de page ici -->
-    {% endblock %}
-</div>
 
 <script>
     if (localStorage.getItem('darkMode') === 'true') {
@@ -107,11 +60,9 @@
         localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
     }
 </script>
-<h1>Mon Blog Django</h1>
-
 {% if messages %}
 {% for message in messages %}
-<div class="messages">{{ message }}</div>
+<p><div class="messages">{{ message }}</div></p>
 {% endfor %}
 {% endif %}
 
