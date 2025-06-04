@@ -7,7 +7,7 @@ from .forms import ArticleForm, CustomUserCreationForm, CommentaireForm
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('app')
 
 def home(request):
     categorie_nom = request.GET.get('categorie')
@@ -28,8 +28,11 @@ def home(request):
 def ajouter_article(request):
     user_role = getattr(request.user, 'role_effectif', request.user.role)
 
-    if user_role not in ['auteur', 'admin', 'editeur']:
-        return HttpResponseForbidden("Accès refusé.")
+    if not request.user.role_effectif in ['admin', 'editeur', 'auteur']:
+        logger.warning(
+                    f"Tentative d'accès non autorisée à l'ajout d'article par l'utilisateur '{request.user.username}' (role: {user_role})"
+                )
+        return redirect('unauthorized')
 
     if request.method == 'POST':
         form = ArticleForm(request.POST, request.FILES)
@@ -37,6 +40,7 @@ def ajouter_article(request):
             article = form.save(commit=False)
             article.auteur = request.user
             article.save()
+            logger.info(f"Nouvel article ajouté : {article.titre} ")
             return redirect('home')
     else:
         form = ArticleForm()
@@ -88,11 +92,11 @@ def modifier_article(request, id):
 def supprimer_article(request, id):
     article = get_object_or_404(Article, id=id)
 
-    # Vérification : l'utilisateur doit être auteur ou admin
     if not (request.user.role == 'admin' or article.auteur == request.user):
         return HttpResponseForbidden("Vous n'avez pas la permission de supprimer cet article.")
 
     if request.method == 'POST':
+        logger.warning(f"Article {article.id} supprimé par {request.user.username}")
         article.delete()
         messages.success(request, "Article supprimé.")
         return redirect('home')
@@ -104,7 +108,11 @@ def signup_view(request):
         form = CustomUserCreationForm(request.POST)
         if form.is_valid():
             form.save()  # Sauvegarde en base
+            logger.info(f"Nouvel utilisateur inscrit : {user.username} (id={user.id})")
             return redirect('login')
     else:
         form = CustomUserCreationForm()
     return render(request, 'blog/signup.html', {'form': form})
+
+def unauthorized_view(request):
+    return render(request, 'blog/unauthorized.html', status=403)

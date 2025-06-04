@@ -1,3 +1,13 @@
+from django.shortcuts import redirect
+from django.urls import resolve
+
+# Définition des règles d’accès par nom de vue
+ACCESS_RULES = {
+    'ajouter_article': ['editeur', 'admin'],
+    'modifier_article': ['editeur', 'admin'],
+    'supprimer_article': ['editeur', 'admin'],
+}
+
 class RoleMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response
@@ -10,4 +20,3 @@ class RoleMiddleware:
 
         response = self.get_response(request)
         return response
-
