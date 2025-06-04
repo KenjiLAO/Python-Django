@@ -5,18 +5,18 @@ def create_categories_and_tags(apps, schema_editor):
     Categorie = apps.get_model('blog', 'Categorie')
     categories = ['Sport', 'Technologie', 'Santé', 'Politique', 'Culture']
     for cat_name in categories:
-        Categorie.objects.create(nom=cat_name)
+        Categorie.objects.get_or_create(nom=cat_name)
 
     # Création des tags
     Tag = apps.get_model('blog', 'Tag')
     tags = ['Django', 'Python', 'Web', 'Tutoriel', 'Sécurité']
     for tag_name in tags:
-        Tag.objects.create(nom=tag_name)
+        Tag.objects.get_or_create(nom=tag_name)
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('blog', '0001_initial'),
+        ('blog', '0007_tag_article_tags'),  # ← adapte ce nom à ta dernière migration
     ]
 
     operations = [

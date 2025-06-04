@@ -1,0 +1,77 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <title>Mon Blog Django</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        .article { border: 1px solid #ddd; padding: 20px; margin: 10px 0; }
+        .btn { background: #007cba; color: white; padding: 10px 20px; text-decoration: none; }
+        .messages { background: #d4edda; color: #155724; padding: 10px; margin: 10px 0; }
+
+        .navbar h1 {
+            margin: 0;
+            font-size: 1.5em;
+        }
+
+        .navbar button {
+            background: #ffffff;
+            color: #007cba;
+            border: none;
+            padding: 8px 12px;
+            cursor: pointer;
+            font-weight: bold;
+            border-radius: 5px;
+        }
+
+        body.dark-mode {
+            background-color: #121212;
+            color: #f0f0f0;
+        }
+
+        body.dark-mode .navbar {
+            background: #1f1f1f;
+            color: #f0f0f0;
+        }
+
+        body.dark-mode .navbar button {
+            background: #333;
+            color: #f0f0f0;
+        }
+
+        /* Décale le contenu vers le bas à cause de la navbar fixe */
+        .content {
+            margin-top: 70px;
+        }
+    </style>
+</head>
+<body>
+{% include 'blog/header.html' %}
+{% load i18n %}
+
+
+<script>
+    if (localStorage.getItem('darkMode') === 'true') {
+        document.body.classList.add('dark-mode');
+    }
+
+    function toggleDarkMode() {
+        document.body.classList.toggle('dark-mode');
+        localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
+    }
+</script>
+<h2>Tags populaires</h2>
+<div>
+    {% for tag in tags %}
+    <span style="font-size: {{ tag.nb_articles|add:10 }}px;">
+            {{ tag.nom }} ({{ tag.nb_articles }})
+        </span>
+    {% if not forloop.last %} | {% endif %}
+    {% endfor %}
+</div>
+
+<div>
+    <a href="{% url 'home' %}">← Retour à l'accueil</a>
+</div>
+</body>
+</html>

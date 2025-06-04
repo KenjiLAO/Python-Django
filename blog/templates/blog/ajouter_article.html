@@ -43,6 +43,11 @@
     </div>
 
     <div class="form-group">
+        <label for="{{ form.tags.id_for_label }}">Tags:</label>
+        {{ form.tags }}
+    </div>
+
+    <div class="form-group">
         <button type="submit" class="btn">Enregistrer</button>
         <a href="{% url 'home' %}" class="btn btn-secondary">Annuler</a>
     </div>

@@ -3,10 +3,12 @@ from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse, HttpResponseForbidden
 from django.contrib import messages
-from .models import Article, Categorie
+from .models import Article, Categorie ,Tag
 from .forms import ArticleForm, CustomUserCreationForm, CommentaireForm
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
+from django.shortcuts import render
+from django.db.models import Count
 
 logger = logging.getLogger('app')
 
@@ -41,6 +43,7 @@ def ajouter_article(request):
             article = form.save(commit=False)
             article.auteur = request.user
             article.save()
+            form.save_m2m()
             logger.info(f"Nouvel article ajouté : {article.titre} ")
             return redirect('home')
     else:
@@ -141,3 +144,7 @@ def track_duration_view(request):
         except Exception as e:
             return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
     return JsonResponse({'status': 'unauthorized'}, status=401)
+
+def tags_populaires_view(request):
+    tags = Tag.objects.annotate(nb_articles=Count('articles')).order_by('-nb_articles')[:50]  # top 50
+    return render(request, 'blog/tags_populaires.html', {'tags': tags})

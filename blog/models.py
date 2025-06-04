@@ -4,6 +4,11 @@ from django.utils import timezone
 from django.conf import settings
 from django.utils.timezone import now
 
+class Tag(models.Model):
+    nom = models.CharField(max_length=50, unique=True)
+
+    def __str__(self):
+        return self.nom
 
 class Categorie(models.Model):
     nom = models.CharField(max_length=100)
@@ -19,6 +24,7 @@ class Article(models.Model):
     commentaire = models.CharField(max_length=200, default='')
     image = models.ImageField(upload_to='articles_images/', blank=True, null=True)
     categorie = models.ForeignKey(Categorie, on_delete=models.SET_NULL, null=True)
+    tags = models.ManyToManyField(Tag, blank=True, related_name='articles')
 
     def __str__(self):
         return self.titre
@@ -59,3 +65,4 @@ class UserActivity(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.path} - {self.timestamp}"
+

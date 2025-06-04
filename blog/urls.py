@@ -12,6 +12,7 @@ urlpatterns = [
     path('supprimer/<int:id>/', views.supprimer_article, name='supprimer_article'),
     path('unauthorized/', views.unauthorized_view, name='unauthorized'),
     path('track-duration/', views.track_duration_view, name='track-duration'),
+    path('tags-populaires/', views.tags_populaires_view, name='tags_populaires_view'),
 
     path('login/', auth_views.LoginView.as_view(template_name='blog/login.html'), name='login'),
     path('logout/', auth_views.LogoutView.as_view(next_page='home'), name='logout'),

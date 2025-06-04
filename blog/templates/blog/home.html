@@ -81,6 +81,8 @@
     </select>
 </form>
 
+<p><a href="{% url 'tags_populaires_view' %}" class="btn">Les plus tagués</a></p>
+
 <h2>Articles ({{ articles.count }})</h2>
 
 {% if articles %}
@@ -99,6 +101,15 @@
     <a href="{% url 'modifier_article' article.id %}">Modifier</a>
     <a href="{% url 'supprimer_article' article.id %}">Supprimer</a>
     {% endif %}
+    <p>
+        Tags :
+        {% for tag in article.tags.all %}
+        <span>{{ tag.nom }}</span>{% if not forloop.last %}, {% endif %}
+        {% empty %}
+        Aucun tag
+        {% endfor %}
+    </p>
+
 </div>
 {% endfor %}
 {% else %}
