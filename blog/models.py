@@ -66,3 +66,9 @@ class UserActivity(models.Model):
     def __str__(self):
         return f"{self.user.username} - {self.path} - {self.timestamp}"
 
+class ArticleLike(models.Model):
+    article = models.ForeignKey(Article, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = ('article', 'user')

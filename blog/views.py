@@ -3,12 +3,15 @@ from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse, HttpResponseForbidden
 from django.contrib import messages
-from .models import Article, Categorie ,Tag
+from .models import Article, Categorie ,Tag, ArticleLike
 from .forms import ArticleForm, CustomUserCreationForm, CommentaireForm
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import render
 from django.db.models import Count
+from django.views.decorators.http import require_POST
+from django.http import JsonResponse
+
 
 logger = logging.getLogger('app')
 
@@ -148,3 +151,23 @@ def track_duration_view(request):
 def tags_populaires_view(request):
     tags = Tag.objects.annotate(nb_articles=Count('articles')).order_by('-nb_articles')[:50]  # top 50
     return render(request, 'blog/tags_populaires.html', {'tags': tags})
+
+@login_required
+def like_article(request):
+    if request.method == "POST":
+        article_id = request.POST.get('article_id')
+        user = request.user
+        try:
+            article = Article.objects.get(pk=article_id)
+        except Article.DoesNotExist:
+            return JsonResponse({'error': 'Article not found'}, status=404)
+
+        like, created = ArticleLike.objects.get_or_create(article=article, user=user)
+        if created:
+            print(f"Like créé pour article {article_id} et user {user}")
+        else:
+            print(f"Like déjà existant pour article {article_id} et user {user}")
+
+        return JsonResponse({'likes': article.articlelike_set.count(), 'already_liked': not created})
+
+    return JsonResponse({'error': 'Invalid request'}, status=400)

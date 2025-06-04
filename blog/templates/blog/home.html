@@ -4,26 +4,163 @@
 <head>
     <title>Mon Blog Django</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 40px; }
-        .article { border: 1px solid #ddd; padding: 20px; margin: 10px 0; }
-        .btn { background: #007cba; color: white; padding: 10px 20px; text-decoration: none; }
-        .messages { background: #d4edda; color: #155724; padding: 10px; margin: 10px 0; }
-
-        .navbar h1 {
+        /* Reset marge globale */
+        body {
+            font-family: Arial, sans-serif;
             margin: 0;
-            font-size: 1.5em;
+            background: #f9f9f9;
+            color: #333;
         }
 
+        /* Navbar fixe en haut */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: #007cba;
+            color: white;
+            padding: 15px 30px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Titre navbar */
+        .navbar h1 {
+            margin: 0;
+            font-size: 1.8em;
+        }
+
+        /* Bouton navbar */
         .navbar button {
-            background: #ffffff;
+            background: white;
             color: #007cba;
             border: none;
-            padding: 8px 12px;
+            padding: 8px 15px;
             cursor: pointer;
             font-weight: bold;
             border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+        .navbar button:hover {
+            background: #005f8d;
+            color: white;
         }
 
+        /* Décalage contenu sous navbar fixe */
+        .content {
+            padding: 100px 30px 40px; /* top = hauteur navbar + marge */
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        /* Style article */
+        .article {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            padding: 25px;
+            margin-bottom: 25px;
+            transition: box-shadow 0.3s ease;
+        }
+        .article:hover {
+            box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+        }
+
+        /* Titre article */
+        .article h3 {
+            margin-top: 0;
+            color: #007cba;
+        }
+
+        /* Image responsive */
+        .article img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 5px;
+            margin-top: 15px;
+        }
+
+        /* Paragraphes contenu article */
+        .article p {
+            line-height: 1.6;
+            margin: 12px 0;
+        }
+
+        /* Boutons généraux */
+        .btn {
+            display: inline-block;
+            background: #007cba;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+            margin-bottom: 20px;
+        }
+        .btn:hover {
+            background: #005f8d;
+        }
+
+        /* Messages */
+        .messages {
+            background: #d4edda;
+            color: #155724;
+            padding: 12px 18px;
+            margin: 20px 0;
+            border-radius: 6px;
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Form filtres catégorie */
+        form {
+            margin-bottom: 30px;
+            max-width: 300px;
+        }
+        form label {
+            font-weight: bold;
+        }
+        form select {
+            width: 100%;
+            padding: 6px;
+            margin-top: 5px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            margin: 40px 0;
+            font-weight: bold;
+        }
+
+        .pagination a {
+            padding: 8px 15px;
+            background: #007cba;
+            color: white;
+            border-radius: 5px;
+            text-decoration: none;
+            transition: background-color 0.3s ease;
+        }
+
+        .pagination a:hover {
+            background: #005f8d;
+        }
+
+        .pagination span {
+            color: #555;
+        }
+
+        /* Dark mode */
         body.dark-mode {
             background-color: #121212;
             color: #f0f0f0;
@@ -39,10 +176,19 @@
             color: #f0f0f0;
         }
 
-        /* Décale le contenu vers le bas à cause de la navbar fixe */
-        .content {
-            margin-top: 70px;
+        body.dark-mode .article {
+            background: #1e1e1e;
+            box-shadow: none;
         }
+
+        body.dark-mode .btn {
+            background: #005f8d;
+        }
+
+        body.dark-mode .pagination a {
+            background: #005f8d;
+        }
+
     </style>
 </head>
 <body>
@@ -96,6 +242,10 @@
         <strong>Le :</strong> {{ article.date_creation|date:"d/m/Y à H:i" }}</p>
     <p>{{ article.contenu }}</p>
     <p>Catégorie : {{ article.categorie }}</p>
+    <p>
+        Nombre de likes :
+        <span class="like-count">{{ article.articlelike_set.count }}</span>
+    </p>
     <a href="{% url 'detail_article' article.id %}">Voir les détails</a>
     {% if user.role == 'admin' or article.auteur == user %}
     <a href="{% url 'modifier_article' article.id %}">Modifier</a>
