@@ -1,4 +1,5 @@
 import logging
+from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse, HttpResponseForbidden
 from django.contrib import messages
@@ -116,3 +117,27 @@ def signup_view(request):
 
 def unauthorized_view(request):
     return render(request, 'blog/unauthorized.html', status=403)
+
+@csrf_exempt
+def track_duration_view(request):
+    if request.method == 'POST' and request.user.is_authenticated:
+        try:
+            data = json.loads(request.body.decode('utf-8'))
+            path = data.get('path')
+            duration = float(data.get('duration', 0))
+            user_agent = request.META.get('HTTP_USER_AGENT', '')
+            ip = request.META.get('REMOTE_ADDR')
+
+            UserActivity.objects.create(
+                user=request.user,
+                path=path,
+                method='GET',
+                timestamp=now(),
+                user_agent=user_agent,
+                ip_address=ip,
+                duration=round(duration, 2)
+            )
+            return JsonResponse({'status': 'ok'})
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+    return JsonResponse({'status': 'unauthorized'}, status=401)

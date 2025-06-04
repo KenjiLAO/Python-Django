@@ -2,6 +2,8 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.utils import timezone
 from django.conf import settings
+from django.utils.timezone import now
+
 
 class Categorie(models.Model):
     nom = models.CharField(max_length=100)
@@ -44,3 +46,16 @@ class Commentaire(models.Model):
 
     def __str__(self):
         return f"{self.auteur} - {self.article}"
+
+
+class UserActivity(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    path = models.CharField(max_length=255)
+    method = models.CharField(max_length=10)
+    timestamp = models.DateTimeField(default=now)
+    user_agent = models.CharField(max_length=255)
+    ip_address = models.GenericIPAddressField(null=True, blank=True)
+    duration = models.FloatField(null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.path} - {self.timestamp}"
