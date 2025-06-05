@@ -3,7 +3,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse, HttpResponseForbidden
 from django.contrib import messages
-from .models import Article, Categorie ,Tag, ArticleLike
+from .models import Article, Categorie ,Tag, ArticleLike, Commentaire
 from .forms import ArticleForm, CustomUserCreationForm, CommentaireForm
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
@@ -189,3 +189,18 @@ def categorie_detail(request, slug):
         'categorie': categorie,
         'articles': articles
     })
+
+@login_required
+def supprimer_commentaire(request, id):
+    commentaire = get_object_or_404(Commentaire, id=id)
+
+    if not (request.user == commentaire.auteur or request.user.is_superuser):
+        return HttpResponseForbidden("Vous n'avez pas la permission de supprimer ce commentaire.")
+
+    if request.method == 'POST':
+        article_id = commentaire.article.id
+        commentaire.delete()
+        messages.success(request, "Commentaire supprimé.")
+        return redirect('detail_article', id=article_id)
+
+    return render(request, 'blog/supprimer_commentaire.html', {'commentaire': commentaire})

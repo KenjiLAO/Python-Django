@@ -15,7 +15,7 @@ class ArticleForm(forms.ModelForm):
 
     class Meta:
         model = Article
-        fields = ['titre', 'contenu', 'commentaire', 'categorie', 'image', 'tags']  # ajoute 'tags'
+        fields = ['titre', 'contenu', 'commentaire', 'categorie', 'image', 'tags']
         widgets = {
             'titre': forms.TextInput(attrs={'placeholder': 'Titre de l\'article'}),
             'contenu': forms.Textarea(attrs={'rows': 5, 'placeholder': 'Contenu'}),

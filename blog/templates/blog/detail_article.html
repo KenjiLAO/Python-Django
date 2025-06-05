@@ -119,7 +119,12 @@
         <h2>Commentaires</h2>
         {% for commentaire in commentaires %}
         <div class="commentaire-item">
-            <p><strong>{{ commentaire.auteur }}</strong> - {{ commentaire.date_creation|date:"d/m/Y H:i" }}</p>
+            <p>
+                <strong>{{ commentaire.auteur }}</strong> - {{ commentaire.date_creation|date:"d/m/Y H:i" }}
+                {% if user == commentaire.auteur or user.is_superuser %}
+                <a href="{% url 'supprimer_commentaire' commentaire.id %}">🗑️ Supprimer</a>
+                {% endif %}
+            </p>
             <p>{{ commentaire.contenu }}</p>
         </div>
         {% empty %}

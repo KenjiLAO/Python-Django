@@ -7,3 +7,4 @@ class CategorieModelTest(TestCase):
         categorie = Categorie.objects.create(nom="Plats Végétariens", slug=slugify("Plats Végétariens"))
         expected_url = f"/categories/{categorie.slug}/"
         self.assertEqual(categorie.get_absolute_url(), expected_url)
+

@@ -1,0 +1,15 @@
+{% block content %}
+<h2>Confirmer la suppression</h2>
+<p>Êtes-vous sûr de vouloir supprimer ce commentaire ?</p>
+
+<div class="commentaire-item">
+    <p><strong>{{ commentaire.auteur }}</strong> - {{ commentaire.date_creation|date:"d/m/Y H:i" }}</p>
+    <p>{{ commentaire.contenu }}</p>
+</div>
+
+<form method="post">
+    {% csrf_token %}
+    <button type="submit">Oui, supprimer</button>
+    <a href="{% url 'detail_article' commentaire.article.id %}">Annuler</a>
+</form>
+{% endblock %}
