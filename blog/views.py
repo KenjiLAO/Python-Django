@@ -14,8 +14,9 @@ from django.db.models import Count
 from django.views.decorators.http import require_POST
 from django.http import JsonResponse
 from django.core.paginator import Paginator
+from decouple import config
 
-
+OPEN_API = config("OPEN_API")
 logger = logging.getLogger('app')
 
 def home(request):
@@ -242,7 +243,7 @@ def generer_contenu_et_image(titre):
     response = requests.post(
         "https://api.openai.com/v1/chat/completions",
         headers={
-            "Authorization": f"Bearer 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",
+            "Authorization": f"Bearer {OPEN_API}",
             "Content-Type": "application/json"
         },
         json={
@@ -262,7 +263,7 @@ def generer_contenu_et_image(titre):
     img_response = requests.post(
         "https://api.openai.com/v1/images/generations",
         headers={
-            "Authorization": f"Bearer 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",
+            "Authorization": f"Bearer {OPEN_API}",
             "Content-Type": "application/json"
         },
         json={
