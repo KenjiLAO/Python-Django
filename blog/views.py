@@ -11,6 +11,7 @@ from django.shortcuts import render
 from django.db.models import Count
 from django.views.decorators.http import require_POST
 from django.http import JsonResponse
+from django.core.paginator import Paginator
 
 
 logger = logging.getLogger('app')
@@ -20,14 +21,22 @@ def home(request):
     categories = Categorie.objects.all()
 
     if categorie_nom:
-        articles = Article.objects.filter(categorie__nom=categorie_nom)
+        article_list = Article.objects.filter(categorie__nom=categorie_nom)
     else:
-        articles = Article.objects.all()
+        article_list = Article.objects.all()
+
+    paginator = Paginator(article_list, 4)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    # Nombre total d’articles (filtrés ou non)
+    total_articles = article_list.count()
 
     return render(request, 'blog/home.html', {
-        'articles': articles,
+        'page_obj': page_obj,
         'categories': categories,
         'categorie_selectionnee': categorie_nom,
+        'total_articles': total_articles,
     })
 
 @login_required

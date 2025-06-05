@@ -1,0 +1,69 @@
+{% if messages %}
+{% for message in messages %}
+<p><div class="messages">{{ message }}</div></p>
+{% endfor %}
+{% endif %}
+
+{% if user.is_authenticated and user.role_effectif == 'editeur' %}
+<p><a href="{% url 'ajouter_article' %}" class="btn">Ajouter un article</a></p>
+{% endif %}
+
+
+<form method="get">
+    <label for="categorie">Filtrer par catégorie :</label>
+    <select name="categorie" id="categorie" onchange="this.form.submit()">
+        <option value="">-- Toutes les catégories --</option>
+        {% for cat in categories %}
+        <option value="{{ cat.nom }}" {% if cat.nom == categorie_selectionnee %}selected{% endif %}>{{ cat.nom }}</option>
+        {% endfor %}
+    </select>
+</form>
+
+<p><a href="{% url 'tags_populaires_view' %}" class="btn">Les plus tagués</a></p>
+
+<h2>Articles ({{ total_articles }})</h2>
+
+{% if page_obj %}
+{% for article in page_obj %}
+<div class="article">
+    <h3>{{ article.titre }}</h3>
+    {% if article.image %}
+    <img src="{{ article.image.url }}" alt="Image de {{ article.titre }}" style="max-width:300px;">
+    {% endif %}
+    <p><strong>Par :</strong> {{ article.auteur }} |
+        <strong>Le :</strong> {{ article.date_creation|date:"d/m/Y à H:i" }}</p>
+    <p>{{ article.contenu }}</p>
+    <p>Catégorie : {{ article.categorie }}</p>
+    <p>
+        Nombre de likes :
+        <span class="like-count">{{ article.articlelike_set.count }}</span>
+    </p>
+    <a href="{% url 'detail_article' article.id %}">Voir les détails</a>
+    {% if user.role == 'admin' or article.auteur == user %}
+    <a href="{% url 'modifier_article' article.id %}">Modifier</a>
+    <a href="{% url 'supprimer_article' article.id %}">Supprimer</a>
+    {% endif %}
+    <p>
+        Tags :
+        {% for tag in article.tags.all %}
+        <span>{{ tag.nom }}</span>{% if not forloop.last %}, {% endif %}
+        {% empty %}
+        Aucun tag
+        {% endfor %}
+    </p>
+</div>
+{% endfor %}
+{% else %}
+<p>Aucun article trouvé.</p>
+{% endif %}
+<div class="pagination">
+    {% if page_obj.has_previous %}
+    <a href="?{% if categorie_selectionnee %}categorie={{ categorie_selectionnee }}&{% endif %}page={{ page_obj.previous_page_number }}">← Précédent</a>
+    {% endif %}
+
+    <span>Page {{ page_obj.number }} sur {{ page_obj.paginator.num_pages }}</span>
+
+    {% if page_obj.has_next %}
+    <a href="?{% if categorie_selectionnee %}categorie={{ categorie_selectionnee }}&{% endif %}page={{ page_obj.next_page_number }}">Suivant →</a>
+    {% endif %}
+</div>

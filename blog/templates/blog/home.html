@@ -4,7 +4,6 @@
 <head>
     <title>Mon Blog Django</title>
     <style>
-        /* Reset marge globale */
         body {
             font-family: Arial, sans-serif;
             margin: 0;
@@ -12,7 +11,6 @@
             color: #333;
         }
 
-        /* Navbar fixe en haut */
         .navbar {
             position: fixed;
             top: 0;
@@ -28,13 +26,11 @@
             align-items: center;
         }
 
-        /* Titre navbar */
         .navbar h1 {
             margin: 0;
             font-size: 1.8em;
         }
 
-        /* Bouton navbar */
         .navbar button {
             background: white;
             color: #007cba;
@@ -50,14 +46,12 @@
             color: white;
         }
 
-        /* Décalage contenu sous navbar fixe */
         .content {
-            padding: 100px 30px 40px; /* top = hauteur navbar + marge */
+            padding: 100px 30px 40px;
             max-width: 900px;
             margin: 0 auto;
         }
 
-        /* Style article */
         .article {
             background: white;
             border-radius: 8px;
@@ -70,13 +64,11 @@
             box-shadow: 0 5px 15px rgba(0,0,0,0.15);
         }
 
-        /* Titre article */
         .article h3 {
             margin-top: 0;
             color: #007cba;
         }
 
-        /* Image responsive */
         .article img {
             max-width: 100%;
             height: auto;
@@ -84,13 +76,11 @@
             margin-top: 15px;
         }
 
-        /* Paragraphes contenu article */
         .article p {
             line-height: 1.6;
             margin: 12px 0;
         }
 
-        /* Boutons généraux */
         .btn {
             display: inline-block;
             background: #007cba;
@@ -105,7 +95,6 @@
             background: #005f8d;
         }
 
-        /* Messages */
         .messages {
             background: #d4edda;
             color: #155724;
@@ -117,7 +106,6 @@
             margin-right: auto;
         }
 
-        /* Form filtres catégorie */
         form {
             margin-bottom: 30px;
             max-width: 300px;
@@ -133,7 +121,6 @@
             border: 1px solid #ccc;
         }
 
-        /* Pagination */
         .pagination {
             display: flex;
             justify-content: center;
@@ -160,7 +147,6 @@
             color: #555;
         }
 
-        /* Dark mode */
         body.dark-mode {
             background-color: #121212;
             color: #f0f0f0;
@@ -195,7 +181,6 @@
 {% include 'blog/header.html' %}
 {% load i18n %}
 
-
 <script>
     if (localStorage.getItem('darkMode') === 'true') {
         document.body.classList.add('dark-mode');
@@ -206,64 +191,7 @@
         localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
     }
 </script>
-{% if messages %}
-{% for message in messages %}
-<p><div class="messages">{{ message }}</div></p>
-{% endfor %}
-{% endif %}
 
-{% if user.is_authenticated and user.role_effectif == 'editeur' %}
-<p><a href="{% url 'ajouter_article' %}" class="btn">Ajouter un article</a></p>
-{% endif %}
-
-
-<form method="get">
-    <label for="categorie">Filtrer par catégorie :</label>
-    <select name="categorie" id="categorie" onchange="this.form.submit()">
-        <option value="">-- Toutes les catégories --</option>
-        {% for cat in categories %}
-        <option value="{{ cat.nom }}" {% if cat.nom == categorie_selectionnee %}selected{% endif %}>{{ cat.nom }}</option>
-        {% endfor %}
-    </select>
-</form>
-
-<p><a href="{% url 'tags_populaires_view' %}" class="btn">Les plus tagués</a></p>
-
-<h2>Articles ({{ articles.count }})</h2>
-
-{% if articles %}
-{% for article in articles %}
-<div class="article">
-    <h3>{{ article.titre }}</h3>
-    {% if article.image %}
-    <img src="{{ article.image.url }}" alt="Image de {{ article.titre }}" style="max-width:300px;">
-    {% endif %}
-    <p><strong>Par :</strong> {{ article.auteur }} |
-        <strong>Le :</strong> {{ article.date_creation|date:"d/m/Y à H:i" }}</p>
-    <p>{{ article.contenu }}</p>
-    <p>Catégorie : {{ article.categorie }}</p>
-    <p>
-        Nombre de likes :
-        <span class="like-count">{{ article.articlelike_set.count }}</span>
-    </p>
-    <a href="{% url 'detail_article' article.id %}">Voir les détails</a>
-    {% if user.role == 'admin' or article.auteur == user %}
-    <a href="{% url 'modifier_article' article.id %}">Modifier</a>
-    <a href="{% url 'supprimer_article' article.id %}">Supprimer</a>
-    {% endif %}
-    <p>
-        Tags :
-        {% for tag in article.tags.all %}
-        <span>{{ tag.nom }}</span>{% if not forloop.last %}, {% endif %}
-        {% empty %}
-        Aucun tag
-        {% endfor %}
-    </p>
-
-</div>
-{% endfor %}
-{% else %}
-<p>Aucun article pour le moment. <a href="{% url 'ajouter_article' %}">Ajoutez le premier !</a></p>
-{% endif %}
+{% include 'blog/liste_article.html' %}
 </body>
 </html>
