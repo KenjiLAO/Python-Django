@@ -1,4 +1,6 @@
 import logging
+import requests
+import json
 from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse, HttpResponseForbidden
@@ -204,3 +206,75 @@ def supprimer_commentaire(request, id):
         return redirect('detail_article', id=article_id)
 
     return render(request, 'blog/supprimer_commentaire.html', {'commentaire': commentaire})
+
+
+@csrf_exempt
+@login_required
+def generer_article_chatgpt(request):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            titre = data.get("titre", "").strip()
+            if not titre:
+                return JsonResponse({"error": "Titre manquant."}, status=400)
+
+            contenu, image_url = generer_contenu_et_image(titre)
+
+            categorie = "Général"
+            tags = ["Auto", "Contenu", "AI"]
+
+            return JsonResponse({
+                "contenu": contenu,
+                "image_url": image_url,
+                "categorie": categorie,
+                "tags": tags,
+            })
+        except Exception as e:
+            return JsonResponse({"error": f"Erreur serveur : {str(e)}"}, status=500)
+
+    return JsonResponse({"error": "Méthode non autorisée."}, status=405)
+
+
+def generer_contenu_et_image(titre):
+
+    prompt = f"Rédige un article clair, structuré et informatif sur le thème : {titre}"
+
+    response = requests.post(
+        "https://api.openai.com/v1/chat/completions",
+        headers={
+            "Authorization": f"Bearer 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",
+            "Content-Type": "application/json"
+        },
+        json={
+            "model": "gpt-3.5-turbo",
+            "messages": [{"role": "user", "content": prompt}],
+            "temperature": 0.7,
+            "max_tokens": 800
+        }
+    )
+
+    if response.status_code == 200:
+        contenu = response.json()["choices"][0]["message"]["content"]
+    else:
+        contenu = "Erreur lors de la génération du contenu."
+
+    image_prompt = f"Illustration numérique du thème : {titre}"
+    img_response = requests.post(
+        "https://api.openai.com/v1/images/generations",
+        headers={
+            "Authorization": f"Bearer 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",
+            "Content-Type": "application/json"
+        },
+        json={
+            "prompt": image_prompt,
+            "n": 1,
+            "size": "512x512"
+        }
+    )
+
+    if img_response.status_code == 200:
+        image_url = img_response.json()["data"][0]["url"]
+    else:
+        image_url = ""
+
+    return contenu, image_url

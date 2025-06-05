@@ -1,56 +1,220 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
 <head>
+    <meta charset="UTF-8">
     <title>Ajouter un article</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 40px; }
-        .form-group { margin: 15px 0; }
-        label { display: block; margin-bottom: 5px; font-weight: bold; }
-        input, textarea { width: 100%; padding: 8px; max-width: 500px; }
-        .btn { background: #007cba; color: white; padding: 10px 20px; border: none; cursor: pointer; }
-        .btn-secondary { background: #6c757d; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f4f6f9;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+        }
+
+        form {
+            background: white;
+            padding: 40px;
+            margin-top: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 600px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #444;
+        }
+
+        input[type="text"],
+        input[type="file"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            box-sizing: border-box;
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: 600;
+            color: white;
+            background-color: #007cba;
+            border: none;
+            border-radius: 6px;
+            text-decoration: none;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .btn:hover {
+            background-color: #005f90;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            margin-left: 10px;
+        }
+
+        .btn-secondary:hover {
+            background-color: #565e64;
+        }
+
+        a.btn {
+            padding: 10px 18px;
+        }
     </style>
 </head>
 <body>
-<h1>Ajouter un Article</h1>
-
 <form method="post" enctype="multipart/form-data">
+    <h1>Ajouter un Article</h1>
     {% csrf_token %}
+    {% load i18n %}
 
     <div class="form-group">
-        <label for="{{ form.titre.id_for_label }}">Titre:</label>
+        <label for="{{ form.titre.id_for_label }}">Titre :</label>
         {{ form.titre }}
     </div>
 
     <div class="form-group">
-        <label for="{{ form.contenu.id_for_label }}">Contenu:</label>
+        <label for="{{ form.contenu.id_for_label }}">Contenu :</label>
         {{ form.contenu }}
     </div>
 
     <div class="form-group">
-        <label for="{{ form.commentaire.id_for_label }}">Commentaire:</label>
+        <label for="{{ form.commentaire.id_for_label }}">Commentaire :</label>
         {{ form.commentaire }}
     </div>
 
     <div class="form-group">
-        <label for="{{ form.categorie.id_for_label }}">Catégorie:</label>
+        <label for="{{ form.categorie.id_for_label }}">Catégorie :</label>
         {{ form.categorie }}
     </div>
 
     <div class="form-group">
-        <label for="{{ form.image.id_for_label }}">Image:</label>
+        <label for="{{ form.image.id_for_label }}">Image :</label>
         {{ form.image }}
     </div>
 
     <div class="form-group">
-        <label for="{{ form.tags.id_for_label }}">Tags:</label>
+        <label for="{{ form.tags.id_for_label }}">Tags :</label>
         {{ form.tags }}
     </div>
 
     <div class="form-group">
+        <label for="id_statut">Statut :</label>
+        {{ form.statut }}
+    </div>
+
+
+    <button type="button" onclick="genererArticle()">🧠 Générer</button>
+
+    <div id="chargement" style="display: none; margin-top: 20px;">Chargement...</div>
+
+    <div id="articleGenere" style="display: none; margin-top: 20px;">
+        <h2 id="articleTitre"></h2>
+        <img id="articleImage" src="" alt="Image générée" style="max-width: 100%;">
+        <p id="articleContenu"></p>
+    </div>
+
+    <div class="form-group" style="text-align: center;">
         <button type="submit" class="btn">Enregistrer</button>
         <a href="{% url 'home' %}" class="btn btn-secondary">Annuler</a>
     </div>
 </form>
+<script>
+    function genererArticle() {
+        const titreInput = document.getElementById("id_titre");
+        const titre = titreInput.value.trim();
+
+        if (!titre) {
+            alert("Merci d'entrer un titre !");
+            return;
+        }
+
+        document.getElementById("chargement").style.display = "block";
+        document.getElementById("articleGenere").style.display = "none";
+
+        fetch("{% url 'generer_article_chatgpt' %}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": document.querySelector('[name=csrfmiddlewaretoken]').value,
+            },
+            body: JSON.stringify({titre: titre})
+        })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("chargement").style.display = "none";
+
+                if (data.error) {
+                    alert("Erreur : " + data.error);
+                    return;
+                }
+
+                // Affichage preview
+                document.getElementById("articleTitre").textContent = titre;
+                document.getElementById("articleContenu").textContent = data.contenu;
+                document.getElementById("articleImage").src = data.image_url;
+                document.getElementById("articleGenere").style.display = "block";
+
+                // Remplir champs
+                document.getElementById("id_contenu").value = data.contenu;
+
+                // Suggérer image (si champ texte ou à afficher)
+                const imageField = document.getElementById("id_image");
+                if (imageField && imageField.type === "text") {
+                    imageField.value = data.image_url;
+                }
+
+                // Remplir catégorie (si texte)
+                const catSelect = document.getElementById("id_categorie");
+                if (catSelect && data.categorie) {
+                    Array.from(catSelect.options).forEach(opt => {
+                        opt.selected = (opt.text === data.categorie);
+                    });
+                }
+
+                // Tags
+                const tagSelect = document.getElementById("id_tags");
+                if (tagSelect && data.tags) {
+                    Array.from(tagSelect.options).forEach(opt => {
+                        opt.selected = data.tags.includes(opt.text);
+                    });
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert("Une erreur est survenue.");
+                document.getElementById("chargement").style.display = "none";
+            });
+    }
+</script>
 </body>
 </html>

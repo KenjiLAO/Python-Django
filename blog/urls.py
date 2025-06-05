@@ -16,6 +16,7 @@ urlpatterns = [
     path('like-article/', views.like_article, name='like_article'),
     path('categories/<slug:slug>/', views.categorie_detail, name='categorie_detail'),
     path('commentaire/<int:id>/supprimer/', views.supprimer_commentaire, name='supprimer_commentaire'),
+    path("generer-article/", views.generer_article_chatgpt, name="generer_article_chatgpt"),
 
 
     path('login/', auth_views.LoginView.as_view(template_name='blog/login.html'), name='login'),

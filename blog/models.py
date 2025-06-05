@@ -24,6 +24,11 @@ class Categorie(models.Model):
         return reverse('categorie_detail', kwargs={'slug': self.slug})
 
 class Article(models.Model):
+    STATUT_CHOICES = [
+            ('brouillon', 'Brouillon'),
+            ('publie', 'Publié'),
+            ('archive', 'Archivé'),
+        ]
     titre = models.CharField(max_length=200)
     contenu = models.TextField()
     auteur = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
@@ -32,6 +37,7 @@ class Article(models.Model):
     image = models.ImageField(upload_to='articles_images/', blank=True, null=True)
     categorie = models.ForeignKey(Categorie, on_delete=models.SET_NULL, null=True)
     tags = models.ManyToManyField(Tag, blank=True, related_name='articles')
+    statut = models.CharField(max_length=10, choices=STATUT_CHOICES, default='brouillon')
 
     def __str__(self):
         return self.titre
