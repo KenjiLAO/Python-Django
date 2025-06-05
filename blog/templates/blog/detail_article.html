@@ -108,7 +108,7 @@
         <div class="article" id="article-{{ article.id }}">
             <h3>{{ article.titre }}</h3>
             <button class="btn-like" data-article-id="{{ article.id }}">
-                👍 Like (<span class="like-count">{{ article.likes }}</span>)
+                👍 Like (<span class="like-count">{{ article.articlelike_set.count }}</span>)
             </button>
         </div>
         <a href="{% url 'home' %}">← Retour à l'accueil</a>
