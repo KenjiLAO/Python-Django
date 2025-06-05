@@ -121,7 +121,7 @@
         <div class="commentaire-item">
             <p>
                 <strong>{{ commentaire.auteur }}</strong> - {{ commentaire.date_creation|date:"d/m/Y H:i" }}
-                {% if user == commentaire.auteur or user.is_superuser %}
+                {% if user == commentaire.auteur or user.role == "admin" %}
                 <a href="{% url 'supprimer_commentaire' commentaire.id %}">🗑️ Supprimer</a>
                 {% endif %}
             </p>

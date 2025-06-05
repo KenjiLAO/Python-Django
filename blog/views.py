@@ -194,7 +194,7 @@ def categorie_detail(request, slug):
 def supprimer_commentaire(request, id):
     commentaire = get_object_or_404(Commentaire, id=id)
 
-    if not (request.user == commentaire.auteur or request.user.is_superuser):
+    if not (request.user == commentaire.auteur or request.user.role == "admin"):
         return HttpResponseForbidden("Vous n'avez pas la permission de supprimer ce commentaire.")
 
     if request.method == 'POST':
