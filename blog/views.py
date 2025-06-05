@@ -180,3 +180,12 @@ def like_article(request):
         return JsonResponse({'likes': article.articlelike_set.count(), 'already_liked': not created})
 
     return JsonResponse({'error': 'Invalid request'}, status=400)
+
+def categorie_detail(request, slug):
+    categorie = get_object_or_404(Categorie, slug=slug)
+    articles = Article.objects.filter(categorie=categorie)
+
+    return render(request, 'blog/categorie_detail.html', {
+        'categorie': categorie,
+        'articles': articles
+    })

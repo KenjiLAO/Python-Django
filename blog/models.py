@@ -3,6 +3,7 @@ from django.db import models
 from django.utils import timezone
 from django.conf import settings
 from django.utils.timezone import now
+from django.urls import reverse
 
 class Tag(models.Model):
     nom = models.CharField(max_length=50, unique=True)
@@ -12,9 +13,15 @@ class Tag(models.Model):
 
 class Categorie(models.Model):
     nom = models.CharField(max_length=100)
+    description = models.TextField(blank=True)
+    slug = models.SlugField(blank=True)
+    icone = models.ImageField(upload_to='categories_icons/', blank=True, null=True)
 
     def __str__(self):
         return self.nom
+
+    def get_absolute_url(self):
+        return reverse('categorie_detail', kwargs={'slug': self.slug})
 
 class Article(models.Model):
     titre = models.CharField(max_length=200)
